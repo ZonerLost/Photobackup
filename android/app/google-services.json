@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "935316540571",
+    "project_id": "photo-backup-55a32",
+    "storage_bucket": "photo-backup-55a32.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:935316540571:android:f4673930950089737d0a3e",
+        "android_client_info": {
+          "package_name": "com.app.photobackup"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD4KspeR24VctVTx02uQUXlgHZhRkCI1xY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
