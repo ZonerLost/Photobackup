@@ -3,61 +3,91 @@ import 'package:photobackup/utils/file_indexes.dart';
 import 'package:photobackup/view/drawer/change_password.dart';
 import 'package:photobackup/widgets/auth_widgets/custom_textfield.dart';
 
+import '../../controller/auth_controller.dart';
+
 class ProfileSetting extends StatelessWidget {
-  const ProfileSetting({super.key});
+  ProfileSetting({super.key});
+  final formKey = GlobalKey<FormState>();
+  final AuthController controller = Get.put(AuthController());
 
   @override
   Widget build(BuildContext context) {
+    // 👇 Fetch user profile when screen opens
+    controller.getCurrentUserProfile();
+
     return Scaffold(
-      appBar: CustomAppBar(
-        title: "Profile Setting",
-      ),
+      appBar: CustomAppBar(title: "Profile Setting"),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 20),
-        child: Column(
-          children: [
-            Space.vertical(4),
-            Center(
-              child: Stack(
-                children: [
-                  CircleAvatar(
-                    radius: 60,
-                    backgroundColor: Colors.transparent,
-                    child: Image.asset(
-                      AppImages.profile,
-                      width: 120,
-                      height: 120,
-                    ),
-                  ),
-                  Positioned(
+        child: Form(
+          key: formKey,
+          child: Column(
+            children: [
+              Space.vertical(4),
+              Center(
+                child: Stack(
+                  children: [
+                    Obx(() => CircleAvatar(
+                      radius: 60,
+                      backgroundColor: Colors.transparent,
+                      backgroundImage: controller.selectedImageUrl.value.isNotEmpty
+                          ? NetworkImage(controller.selectedImageUrl.value)
+                          : AssetImage(AppImages.profile) as ImageProvider,
+                    )),
+                    Positioned(
                       bottom: 0,
                       right: 12,
                       child: Container(
                         padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(color: AppColors.skyMist, borderRadius: BorderRadius.circular(50)),
+                        decoration: BoxDecoration(
+                          color: AppColors.skyMist,
+                          borderRadius: BorderRadius.circular(50),
+                        ),
                         child: showSvgIconWidget(iconPath: AppIcons.galleryEditIcon),
-                      )),
-                ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-            8.height,
-            CustomTextField(title: "Email", hintText: "Enter your email"),
-            20.height,
-            CustomTextField(
-              obscureText: true,
-              title: "Password",
-              hintText: "Enter your password",
-              showSuffixIcon: true,
-              suffixIcon: TextButton(
-                  onPressed: () => Get.to(() => const ChangePassword()),
+              8.height,
+              CustomTextField(
+                title: "Email",
+                controller: controller.emailController, // 👈 use controller here
+                hintText: "Enter your email",
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return "Please enter email";
+                  }
+                  if (!GetUtils.isEmail(value)) {
+                    return "Enter a valid email";
+                  }
+                  return null;
+                },
+              ),
+              20.height,
+              CustomTextField(
+                obscureText: true,
+                title: "Password",
+                hintText: "Enter your password",
+                showSuffixIcon: true,
+                suffixIcon: TextButton(
+                  //onPressed: () => Get.to(() => const ChangePassword()),
+                  onPressed: (){
+                    if (formKey.currentState!.validate()) {
+                      controller.forgotPassword(controller.emailController.text.trim());
+                    }
+                  },
                   child: KText(
                     text: "Change Password",
                     color: AppColors.primaryColor,
-                  )),
-            ),
-          ],
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 }
+

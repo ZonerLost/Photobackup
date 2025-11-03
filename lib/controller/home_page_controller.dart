@@ -69,8 +69,8 @@ class HomePageController extends GetxController {
 
 
 
-  Rx<UserModel?> user = Rx<UserModel?>(null); // reactive user model
   RxBool isLoading = false.obs;
+  Rx<UserModel?> user = Rx<UserModel?>(null); // reactive user model
 
   Future<void> fetchUser(String userId) async {
     try {

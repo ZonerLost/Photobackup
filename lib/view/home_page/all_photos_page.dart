@@ -90,6 +90,14 @@ class AllPhotosPage extends StatelessWidget {
                             },
                           );
                         }
+                        if (value == 4) {
+                          imageUploadController.shareImage(
+                            image.imageUrl,
+                            imageName: 'my_photo.jpg',
+                          );
+
+                        }
+
                       },
                       onDelete: () {
                         /*imageUploadController.deleteImage(image.id,image.imageUrl).then((_){

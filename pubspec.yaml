@@ -31,6 +31,9 @@ dependencies:
   path_provider: ^2.1.5
   dio: ^5.9.0
   device_info_plus: ^12.1.0
+  share_plus: ^10.1.2
+  http: ^1.2.2
+
 
 dev_dependencies:
   flutter_test:

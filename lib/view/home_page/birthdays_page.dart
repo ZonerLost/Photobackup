@@ -5,16 +5,19 @@ import 'package:photobackup/view/home_page/image_view_page.dart';
 import 'package:photobackup/widgets/drawer_widgets/drawer_dialogues.dart';
 import 'package:photobackup/widgets/home_widgets/photos_page_widget.dart';
 
+import '../../controller/all_photos_controller.dart';
 import '../../controller/choose_album_controller.dart';
+import '../../services/download_service.dart';
 
 class BirthdaysPage extends StatelessWidget {
   String albumId;
   String name;
   BirthdaysPage({super.key, required this.albumId, required this.name,});
+  final imageUploadController = Get.put(ImageUploadController());
+  final albumController = Get.put(ChooseAlbumController());
 
   @override
   Widget build(BuildContext context) {
-    final albumController = Get.put(ChooseAlbumController());
     albumController.fetchAlbumImages(albumId);
 
     return Scaffold(
@@ -65,6 +68,14 @@ class BirthdaysPage extends StatelessWidget {
                                 selectedImage: index,
                               ));
                         }
+                        if (value == 2) {
+                          ///Download image
+                          DownloadService.instance.downloadImage(img.imageUrl).then((_) {
+                            Get.snackbar("Download", "Image saved successfully");
+                          }).catchError((e) {
+                            Get.snackbar("Error", "Download failed: $e");
+                          });
+                        }
                         if (value == 3) {
                           DrawerDialogues.confirmationDialog(
                             context: context,
@@ -79,9 +90,17 @@ class BirthdaysPage extends StatelessWidget {
                             showBorderColor: false,
                             cancelBtnColor: AppColors.lightGreyColor,
                             onConfirm: () {
-                              // TODO: Delete logic
+                              imageUploadController.deleteImage(img.id,img .imageUrl);
+                              Get.back();
                             },
                           );
+                        }
+                        if (value == 4) {
+                          imageUploadController.shareImage(
+                            img.imageUrl,
+                            imageName: 'my_photo.jpg',
+                          );
+
                         }
                       },
                       onDelete: () {

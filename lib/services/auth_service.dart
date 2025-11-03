@@ -11,9 +11,8 @@ class AuthService {
   User? get currentUser => supabase.auth.currentUser;
   bool get isLoggedIn => currentUser != null;
 
-
   /// ------------------ SIGN UP ------------------
-  Future<String?> signUp({
+  Future<AuthResponse?> signUp({
     required String email,
     required String password,
   }) async {
@@ -23,18 +22,15 @@ class AuthService {
         password: password,
       );
       if (response.user != null) {
-        return null; // Success
+        print(response);
+        return response;
       }
-      return response.session == null
-          ? 'Sign up failed'
-          : null; // In case of no session returned
-    } on AuthException catch (e) {
-      return e.message;
+      return null;
     } catch (e) {
-      throw("Error Signup $e");
-
+      throw ("Error Signup $e");
     }
   }
+
 
   /// ------------------ LOGIN ------------------
   Future<String?> login({
@@ -147,12 +143,10 @@ class AuthService {
     }
   }
 
-
-
   /// ------------------ GOOGLE LOGIN ------------------
   Future<AuthResponse> googleSignIn() async {
-
-    const webClientId = '823408425171-7bl6sesqh98bbfrco05q3h620sunmgn2.apps.googleusercontent.com';
+    const webClientId =
+        '823408425171-7bl6sesqh98bbfrco05q3h620sunmgn2.apps.googleusercontent.com';
 
     final GoogleSignIn googleSignIn = GoogleSignIn(
       serverClientId: webClientId,
@@ -174,6 +168,30 @@ class AuthService {
       idToken: idToken,
       accessToken: accessToken,
     );
+  }
+
+  /// ------------------ DELETE USER ACCOUNT (RPC) ------------------
+  Future<String?> deleteUserAccount() async {
+    try {
+      final userId = currentUser?.id;
+      if (userId == null) return "No logged-in user";
+
+      // Call RPC function
+      final response = await supabase.rpc('delete_current_user');
+
+      // Check response
+      if (response['success'] == true) {
+        // Sign out locally (auth session will be invalid anyway)
+        await logout();
+        return null; // Success
+      }
+
+      return response['message'] ?? 'Failed to delete account';
+    } on PostgrestException catch (e) {
+      return e.message;
+    } catch (e) {
+      return e.toString();
+    }
   }
 }
 

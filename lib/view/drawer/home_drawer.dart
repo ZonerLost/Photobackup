@@ -44,7 +44,7 @@ Widget getDrawer(BuildContext context) {
               title: "Profile Setting",
               bgColor: AppColors.pastelPink,
               iconPath: AppIcons.profileIcon,
-              onTap: () => Get.to(() => const ProfileSetting())),
+              onTap: () => Get.to(() =>  ProfileSetting())),
           Space.vertical(2),
           customListTile(
               title: "Terms & Conditions",
@@ -72,7 +72,10 @@ Widget getDrawer(BuildContext context) {
                   textColor: AppColors.whiteColor,
                   btnColor: AppColors.redColor,
                   showBorderColor: true,
-                  onConfirm: () {})),
+                  onConfirm: () {
+                    final controller = Get.find<AuthController>();
+                    controller.handleDeleteUserAccount();
+                  })),
           Space.vertical(13),
           customListTile(
             title: "Logout",

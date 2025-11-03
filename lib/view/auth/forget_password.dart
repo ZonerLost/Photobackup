@@ -57,7 +57,7 @@ class ForgetPassword extends StatelessWidget {
                       controller.forgotPassword(emailController.text.trim());
                     }
                   },
-                  btnText: 'Send link',
+                  btnText: 'Send Code',
                   textColor: Colors.white,
                   color: AppColors.primaryColor,
                 );

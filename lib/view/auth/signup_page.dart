@@ -15,6 +15,7 @@ class SignupPage extends StatelessWidget {
 
   final AuthController controller = Get.put(AuthController());
 
+
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   final confirmPasswordController = TextEditingController();
@@ -43,6 +44,47 @@ class SignupPage extends StatelessWidget {
                 color: AppColors.greyText,
               ),
               28.height,
+              Center(
+                child: Stack(
+                  children: [
+                    Obx(() => CircleAvatar(
+                      radius: 60,
+                      backgroundColor: Colors.transparent,
+                      backgroundImage: controller.selectedImage.value != null
+                          ? FileImage(controller.selectedImage.value!)
+                          : AssetImage(AppImages.profile) as ImageProvider,
+                    )),
+                    Positioned(
+                      bottom: 0,
+                      right: 12,
+                      child: GestureDetector(
+                        onTap: () => controller.pickImage(), // 👈 pick from gallery
+                        child: Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: AppColors.skyMist,
+                            borderRadius: BorderRadius.circular(50),
+                          ),
+                          child: showSvgIconWidget(iconPath: AppIcons.galleryEditIcon),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              8.height,
+              CustomTextField(
+                controller: controller.nameController,
+                title: "Name",
+                hintText: "Enter Name",
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return "Please enter name";
+                  }
+                  return null;
+                },
+              ),
+              22.height,
               CustomTextField(
                 controller: emailController,
                 title: "Email",

@@ -61,77 +61,102 @@ class HomePage extends StatelessWidget {
               ],
             ),
             30.height,
-            CustomRow(title: "Recent Uploads", subtitle: "View All",onViewAll: () => Get.to(() => AllPhotosPage()),),
-            10.height,
-            SizedBox(
-              height: 106,
-              child: Obx(() {
-                if (imageUploadController.images.isEmpty) {
-                  return const Center(child: CircularProgressIndicator());
-                }
+            Obx(() {
+              final images = imageUploadController.images;
 
-                return ListView.separated(
-                  itemCount: imageUploadController.images.length,
-                  scrollDirection: Axis.horizontal,
-                  itemBuilder: (context, index) {
-                    final images = imageUploadController.images[index];
-
-                    return GestureDetector(
-                      onTap: () {
-                        // Handle tap (open fullscreen, etc.)
-                      },
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(10),
-                        child: Image.network(
-                          images.imageUrl,
-                          width: 106,
-                          height: 60,
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                    );
-                  },
-                  separatorBuilder: (context, index) => const SizedBox(width: 10),
-                );
-              }),
-            ),
-
-            20.height,
-            CustomRow(title: "Your Albums", subtitle: "More Albums",onViewAll: () => Get.to(() => AllAlbumPage()),),
-            Obx((){
-              if (chooseAlbumController.albums.isEmpty) {
-                return const Center(child: CircularProgressIndicator());
+              if (images.isEmpty) {
+                return const SizedBox.shrink();
               }
-              return GridView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 3,
-                  mainAxisExtent: 190,
-                  crossAxisSpacing: 10,
-                  mainAxisSpacing: 5,
-                ),
-                itemCount: chooseAlbumController.albums.length,
-                itemBuilder: (context, index) {
-                  final album = chooseAlbumController.albums[index];
-                  final imageCount = chooseAlbumController.getImageCountForAlbum(album.id);
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  CustomRow(
+                    title: "Recent Uploads",
+                    subtitle: "View All",
+                    onViewAll: () => Get.to(() => AllPhotosPage()),
+                  ),
+                  10.height,
+                  SizedBox(
+                    height: 106,
+                    child: ListView.separated(
+                      itemCount: images.length,
+                      scrollDirection: Axis.horizontal,
+                      itemBuilder: (context, index) {
+                        final image = images[index];
 
-                  return FolderWidget(
-                    folderColor: controller.folderMainColors[index],
-                    bdFolderColor: controller.folderAccentColors[index],
-                    folderName: chooseAlbumController.albums[index].name,
-                    subtitle: imageCount.toString(),
-                    onTap: () {
-                      Get.to(() => BirthdaysPage(
-                        albumId: chooseAlbumController.albums[index].id,
-                        name: chooseAlbumController.albums[index].name,
-                      ));
-                    },
-                  );
-                },
+                        return GestureDetector(
+                          onTap: () {
+                            // Handle tap (open fullscreen, etc.)
+                          },
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(10),
+                            child: Image.network(
+                              image.imageUrl,
+                              width: 106,
+                              height: 60,
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        );
+                      },
+                      separatorBuilder: (context, index) => const SizedBox(width: 10),
+                    ),
+                  ),
+                ],
               );
-              },),
-            20.height
+            }),
+            20.height,
+            Obx(() {
+              final albums = chooseAlbumController.albums;
+
+              if (albums.isEmpty) {
+                return const SizedBox.shrink();
+              }
+
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  CustomRow(
+                    title: "Your Albums",
+                    subtitle: "More Albums",
+                    onViewAll: () => Get.to(() => AllAlbumPage()),
+                  ),
+                  GridView.builder(
+                    shrinkWrap: true,
+                    primary: false,
+                    physics: const NeverScrollableScrollPhysics(),
+                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 3,
+                      mainAxisExtent: 160,
+                      crossAxisSpacing: 10,
+                      mainAxisSpacing: 5,
+                    ),
+                    itemCount: albums.length,
+                    itemBuilder: (context, index) {
+                      final album = albums[index];
+                      final imageCount = chooseAlbumController.getImageCountForAlbum(album.id);
+
+                      return FolderWidget(
+                        folderColor: controller.folderMainColors[index],
+                        bdFolderColor: controller.folderAccentColors[index],
+                        folderName: album.name,
+                        subtitle: imageCount.toString(),
+                        onTap: () {
+                          Get.to(() => BirthdaysPage(
+                            albumId: album.id,
+                            name: album.name,
+                          ));
+                        },
+                      );
+                    },
+                  ),
+                  20.height
+                ],
+              );
+            }),
+
+
           ],
         ),
       ),

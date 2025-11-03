@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:photobackup/services/database_service.dart';
 import 'package:photobackup/view/auth/login_page.dart';
 import 'package:photobackup/view/auth/welcome_page.dart';
@@ -15,11 +18,14 @@ import '../view/auth/verification_page.dart';
 import '../widgets/auth_widgets/auth_dialogues.dart';
 
 class AuthController extends GetxController {
-
   var isLoading = false.obs;
   var errorMessage = ''.obs;
   var isVerifying = false.obs;
   var isResettingPassword = false.obs;
+  var selectedImage = Rxn<File>();
+  final nameController = TextEditingController();
+  final emailController = TextEditingController();
+  var selectedImageUrl = ''.obs;
 
   @override
   void onInit() {
@@ -60,37 +66,75 @@ class AuthController extends GetxController {
     await prefs.setBool(_rememberedKey, value);
   }
 
-  /// Sign Up User
+  final ImagePicker _picker = ImagePicker();
+
+  ///Image picker Function
+  Future<void> pickImage() async {
+    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      selectedImage.value = File(pickedFile.path);
+    }
+  }
+
   Future<void> signUpUser(String email, String password) async {
     isLoading.value = true;
     errorMessage.value = '';
 
-    final result = await AuthService.instance.signUp(email: email, password: password);
+    try {
+      final result =
+          await AuthService.instance.signUp(email: email, password: password);
+      if (result != null && result.user != null) {
+        final user = result.user!;
 
-    if (result == null) {
-      final user = AuthService.instance.currentUser;
+        String defaultPic = "https://i.pravatar.cc/150?u=${user.id}";
+        String imageUrl;
+        if (selectedImage.value != null) {
+          final file = selectedImage.value!;
+          final filePath =
+              'profile_images/${user.id}_${DateTime.now().millisecondsSinceEpoch}.jpg';
+          final response = await Supabase.instance.client.storage
+              .from('profile_images')
+              .upload(filePath, file);
 
-      String defaultPic = "https://i.pravatar.cc/150?u=${user!.id}";
+          if (response.isEmpty) {
+            Get.snackbar("Error", "Image upload failed");
+            imageUrl = defaultPic;
+          } else {
+            final publicUrl = Supabase.instance.client.storage
+                .from('profile_images')
+                .getPublicUrl(filePath);
+            imageUrl = publicUrl;
+          }
+        } else {
+          imageUrl = defaultPic;
+        }
 
-      final userModel = UserModel(
-        userId: user.id,
-        name: "Raja Farhan", // signup screen se lo
-        email: user.email.toString(),
-        profilePic: defaultPic,
-      );
+        print("User Model${user.id}");
+        print("User Model${user.email}");
+        print("User Model ${nameController.text}");
+        print("User Model image $imageUrl");
 
-      await DatabaseService.instance.storeUser(userModel);
-      setWelcomeShown(true);
-      Get.snackbar("Success", "Account created successfully!");
-      Get.to(() => SignUpVerification(
-            email: email,
-          ));
-    } else {
-      errorMessage.value = result;
-      Get.snackbar("Error", result);
+        final userModel = UserModel(
+          userId: user.id,
+          name: nameController.text,
+          email: user.email.toString(),
+          profilePic: imageUrl,
+        );
+
+        await DatabaseService.instance.storeUser(userModel);
+        setWelcomeShown(true);
+        Get.snackbar("Success", "Account created successfully!");
+        Get.to(() => SignUpVerification(email: email));
+      } else {
+        errorMessage.value = "Sign up failed";
+        Get.snackbar("Error", "Sign up failed");
+      }
+    } catch (e) {
+      errorMessage.value = e.toString();
+      Get.snackbar("Error", e.toString());
+    } finally {
+      isLoading.value = false;
     }
-
-    isLoading.value = false;
   }
 
   /// Login User
@@ -98,7 +142,8 @@ class AuthController extends GetxController {
     isLoading.value = true;
     errorMessage.value = '';
 
-    final result = await AuthService.instance.login(email: email, password: password);
+    final result =
+        await AuthService.instance.login(email: email, password: password);
 
     if (result == null) {
       setWelcomeShown(true);
@@ -137,7 +182,8 @@ class AuthController extends GetxController {
     try {
       isVerifying.value = true;
 
-      final response = await AuthService.instance.verifyOTP(email: email, otp: otp);
+      final response =
+          await AuthService.instance.verifyOTP(email: email, otp: otp);
 
       if (response?.user != null) {
         CustomSnackBars.instance.showSuccessSnackbar(
@@ -209,7 +255,8 @@ class AuthController extends GetxController {
 
       isResettingPassword.value = true;
 
-      final response = await AuthService.instance.verifyResetWithOTP(email, otp);
+      final response =
+          await AuthService.instance.verifyResetWithOTP(email, otp);
 
       if (response != null && response.user != null) {
         CustomSnackBars.instance.showSuccessSnackbar(
@@ -301,8 +348,7 @@ class AuthController extends GetxController {
     }
   }
 
-
- ///Login With Google
+  ///Login With Google
   Future<void> loginWithGoogle() async {
     //isLoading.value = true;
     errorMessage.value = '';
@@ -311,7 +357,6 @@ class AuthController extends GetxController {
     print("result $result");
 
     if (result.user != null) {
-
       final user = result.user!;
       final userModel = UserModel(
         userId: user.id,
@@ -321,10 +366,6 @@ class AuthController extends GetxController {
       );
 
       await DatabaseService.instance.storeUser(userModel);
-
-
-
-
 
       setWelcomeShown(true);
       setRemembered(true);
@@ -337,6 +378,70 @@ class AuthController extends GetxController {
 
     //isLoading.value = false;
   }
+
+  /// ------------------ DELETE USER ACCOUNT ------------------
+  Future<void> handleDeleteUserAccount() async {
+    isLoading.value = true;
+    errorMessage.value = '';
+
+    try {
+      final user = AuthService.instance.currentUser;
+      if (user == null) throw Exception("No logged-in user found.");
+
+      // Step 1: Delete user data from your 'users' table
+      await AuthService.instance.supabase
+          .from('users')
+          .delete()
+          .eq('user_id', user.id);
+
+      // Step 2: Delete the auth account
+      final result = await AuthService.instance.deleteUserAccount();
+
+      if (result == null) {
+        Get.snackbar("Success", "Account deleted successfully!");
+        setRemembered(false);
+        Get.offAll(() => LoginPage());
+      } else {
+        errorMessage.value = result;
+        Get.snackbar("Error", result);
+      }
+    } catch (e) {
+      errorMessage.value = e.toString();
+      Get.snackbar("Error", e.toString());
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+
+  Future<void> getCurrentUserProfile() async {
+    try {
+      final supabase = Supabase.instance.client;
+      final user = supabase.auth.currentUser;
+
+      if (user == null) {
+        Get.snackbar("Error", "No user found");
+        return;
+      }
+
+      final email = user.email ?? '';
+      final imagePath = user.userMetadata?['image'] as String?; // stored file path in metadata
+
+      String imageUrl;
+
+      if (imagePath != null && imagePath.isNotEmpty) {
+        imageUrl = supabase.storage.from('profile_images').getPublicUrl(imagePath);
+      } else {
+        imageUrl = "https://i.pravatar.cc/150?u=${user.id}";
+      }
+      emailController.text = email;
+      selectedImageUrl.value = imageUrl;
+    } catch (e) {
+      Get.snackbar("Error", e.toString());
+    }
+  }
+
+
 
 
 

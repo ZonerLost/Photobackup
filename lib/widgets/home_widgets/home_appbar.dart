@@ -45,7 +45,7 @@ class HomeAppbar extends StatelessWidget {
           ],
         ),
         actions: [
-          if (user != null && user.profilePic.isNotEmpty)
+         if (user != null && user.profilePic.isNotEmpty)
             ClipRRect(
               borderRadius: BorderRadius.circular(20),
               child: Image.network(
