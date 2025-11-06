@@ -10,10 +10,12 @@ import 'package:photobackup/constants/assets_path.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../constants/app_colors.dart';
 import '../models/imageModel.dart';
 import '../models/upload_item_model.dart';
 import '../services/image_service.dart';
 import '../view/home_page/choose_album.dart';
+import '../widgets/home_widgets/dialog_box.dart';
 
 class AllPhotosController extends GetxController {
   List<String> images = [
@@ -63,7 +65,20 @@ class ImageUploadController extends GetxController {
         snackPosition: SnackPosition.BOTTOM,
       );
 
-      Get.to(()=>ChooseAlbum());
+      AppDialogBox.imageUploadedDialogue(
+
+          context: context,
+          onConfirm: () => Get.to(()=>ChooseAlbum()),
+          iconPath: AppIcons.imageUploadedIcon,
+          title: 'Image Uploaded',
+          content: 'Your image has been successfully uploaded!',
+          confirmText: 'Add to Album',
+          textColor: AppColors.whiteColor,
+          cancelText: '',
+          borderColor: AppColors.primaryColor,
+          btnColor: AppColors.primaryColor
+      );
+
     }
   }
 

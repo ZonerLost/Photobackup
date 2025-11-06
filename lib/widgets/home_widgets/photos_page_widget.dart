@@ -16,12 +16,12 @@ class PhotosPageWidget extends StatelessWidget {
       child: Column(
         children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              Padding(
+             /* Padding(
                 padding: const EdgeInsets.only(left: 10),
                 child: KText(text: "img345768809"),
-              ),
+              ),*/
               PopupMenuButton<int>(
 
                 itemBuilder: (context) => [
@@ -39,7 +39,7 @@ class PhotosPageWidget extends StatelessWidget {
           ),
           Expanded(
             child: ClipRRect(
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: BorderRadius.circular(8),
                 child: AspectRatio(
                   aspectRatio: 1.1,
                   child: Image.network(

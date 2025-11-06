@@ -4,16 +4,20 @@ import 'package:photobackup/view/drawer/change_password.dart';
 import 'package:photobackup/widgets/auth_widgets/custom_textfield.dart';
 
 import '../../controller/auth_controller.dart';
+import '../../controller/home_page_controller.dart';
 
 class ProfileSetting extends StatelessWidget {
   ProfileSetting({super.key});
   final formKey = GlobalKey<FormState>();
   final AuthController controller = Get.put(AuthController());
+  final homeController = Get.find<HomePageController>();
+  final emailController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     // 👇 Fetch user profile when screen opens
     controller.getCurrentUserProfile();
+  //  final user = homeController.user.value;
 
     return Scaffold(
       appBar: CustomAppBar(title: "Profile Setting"),
@@ -27,32 +31,42 @@ class ProfileSetting extends StatelessWidget {
               Center(
                 child: Stack(
                   children: [
-                    Obx(() => CircleAvatar(
-                      radius: 60,
-                      backgroundColor: Colors.transparent,
-                      backgroundImage: controller.selectedImageUrl.value.isNotEmpty
-                          ? NetworkImage(controller.selectedImageUrl.value)
-                          : AssetImage(AppImages.profile) as ImageProvider,
-                    )),
-                    Positioned(
+                    Obx(() {
+                      final user = homeController.user.value;
+                      if (user != null && emailController.text.isEmpty) {
+                        emailController.text = user.email;
+                      }
+                      return CircleAvatar(
+                        radius: 60,
+                        backgroundColor: Colors.transparent,
+                        backgroundImage: user != null && user.profilePic.isNotEmpty
+                            ? NetworkImage(user.profilePic)
+                            : AssetImage(AppImages.profile) as ImageProvider,
+                      );
+                    }),
+
+                   /* Positioned(
                       bottom: 0,
                       right: 12,
-                      child: Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: AppColors.skyMist,
-                          borderRadius: BorderRadius.circular(50),
+                      child: GestureDetector(
+                        //onTap: () => controller.pickImage(),
+                        child: Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: AppColors.skyMist,
+                            borderRadius: BorderRadius.circular(50),
+                          ),
+                          child: showSvgIconWidget(iconPath: AppIcons.galleryEditIcon),
                         ),
-                        child: showSvgIconWidget(iconPath: AppIcons.galleryEditIcon),
                       ),
-                    ),
+                    ),*/
                   ],
                 ),
               ),
               8.height,
               CustomTextField(
                 title: "Email",
-                controller: controller.emailController, // 👈 use controller here
+                controller: emailController, // 👈 use controller here
                 hintText: "Enter your email",
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -74,7 +88,8 @@ class ProfileSetting extends StatelessWidget {
                   //onPressed: () => Get.to(() => const ChangePassword()),
                   onPressed: (){
                     if (formKey.currentState!.validate()) {
-                      controller.forgotPassword(controller.emailController.text.trim());
+                      controller.isLogin.value = true;
+                      controller.forgotPassword(emailController.text.trim());
                     }
                   },
                   child: KText(

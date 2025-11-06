@@ -29,7 +29,7 @@ class _ImageViewPageState extends State<ImageViewPage> {
     var size = MediaQuery.sizeOf(context);
     return Scaffold(
       appBar: CustomAppBar(
-        title: "img345768809",
+        title: "",
         icon: showSvgIconWidget(iconPath: AppIcons.exportIcon),
       ),
       body: Padding(

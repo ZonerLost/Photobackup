@@ -54,7 +54,8 @@ class ForgetPassword extends StatelessWidget {
                     : kTextButton(
                   onPressed: () {
                     if (formKey.currentState!.validate()) {
-                      controller.forgotPassword(emailController.text.trim());
+                      controller.isLogin.value = false;
+                      controller.forgotPassword(emailController.text.trim(),);
                     }
                   },
                   btnText: 'Send Code',

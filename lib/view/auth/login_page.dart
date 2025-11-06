@@ -89,7 +89,7 @@ class LoginPage extends StatelessWidget {
                     ],
                   ),
                   GestureDetector(
-                      onTap: () => Get.to(() =>  ForgetPassword()),
+                      onTap: () => Get.off(() =>  ForgetPassword()),
                       child: KText(text: "Forgot password?", fontSize: 14, color: AppColors.primaryColor)),
                 ],
               ),

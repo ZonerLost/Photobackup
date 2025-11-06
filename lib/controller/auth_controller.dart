@@ -24,8 +24,8 @@ class AuthController extends GetxController {
   var isResettingPassword = false.obs;
   var selectedImage = Rxn<File>();
   final nameController = TextEditingController();
-  final emailController = TextEditingController();
   var selectedImageUrl = ''.obs;
+  var isLogin = true.obs;
 
   @override
   void onInit() {
@@ -203,7 +203,7 @@ class AuthController extends GetxController {
   }
 
   ///ForgetPassword
-  Future<void> forgotPassword(String email) async {
+  Future<void> forgotPassword(String email,) async {
     try {
       if (email.isEmpty) {
         CustomSnackBars.instance.showFailureSnackbar(
@@ -230,9 +230,7 @@ class AuthController extends GetxController {
         message: "Password reset OTP has been sent to your email",
       );
 
-      Get.to(() => VerificationPage(
-            email: email,
-          ));
+      Get.off(() => VerificationPage(email: email,));
       //Get.to(() => ForgetOtpVerification(email: email));
     } catch (e) {
       CustomSnackBars.instance.showFailureSnackbar(
@@ -255,8 +253,7 @@ class AuthController extends GetxController {
 
       isResettingPassword.value = true;
 
-      final response =
-          await AuthService.instance.verifyResetWithOTP(email, otp);
+      final response = await AuthService.instance.verifyResetWithOTP(email, otp);
 
       if (response != null && response.user != null) {
         CustomSnackBars.instance.showSuccessSnackbar(
@@ -264,7 +261,7 @@ class AuthController extends GetxController {
           message: "Email verified successfully!",
         );
 
-        Get.to(() => SetPassword());
+        Get.off(() => SetPassword());
       } else {
         CustomSnackBars.instance.showFailureSnackbar(
           title: "Verification Failed",
@@ -331,6 +328,7 @@ class AuthController extends GetxController {
       );
 
       if (isResetFlow) {
+        Get.back();
         AuthDialogues.successDialog(context);
       } else {
         await AuthService.instance.logout();
@@ -434,8 +432,10 @@ class AuthController extends GetxController {
       } else {
         imageUrl = "https://i.pravatar.cc/150?u=${user.id}";
       }
-      emailController.text = email;
+     // emailController.text = email;
       selectedImageUrl.value = imageUrl;
+      print("imageUrl");
+      print(imageUrl);
     } catch (e) {
       Get.snackbar("Error", e.toString());
     }

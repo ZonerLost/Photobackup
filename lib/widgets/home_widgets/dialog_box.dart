@@ -38,11 +38,11 @@ class AppDialogBox{
                 btnText: confirmText,
                 borderRadius: 10
             ),
-            kTextButton(
+           /* kTextButton(
               onPressed: () => Get.back(),
               btnText: cancelText,
               textColor: AppColors.greyText
-            )
+            )*/
           ],
         ),
       ),

@@ -33,18 +33,7 @@ class UploadPhotoPage extends StatelessWidget {
             30.height,
             GestureDetector(
               onTap: (){
-                AppDialogBox.imageUploadedDialogue(
-                    context: context,
-                    onConfirm: () => Get.back(),
-                    iconPath: AppIcons.imageUploadedIcon,
-                    title: 'Image Uploaded',
-                    content: 'Your image has been successfully uploaded!',
-                    confirmText: 'Add to Album',
-                    textColor: AppColors.whiteColor,
-                    cancelText: 'Skip for now',
-                    borderColor: AppColors.primaryColor,
-                    btnColor: AppColors.primaryColor
-                );
+                imageUploadController.pickAndCompressImages(context);
               },
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -97,7 +86,7 @@ class UploadPhotoPage extends StatelessWidget {
                       )
                   ),
                   38.height,
-                  UploadingContent(percentage: "45", remainingTime: "• 50sec remaining", onClose: (){
+                  /*UploadingContent(percentage: "45", remainingTime: "• 50sec remaining", onClose: (){
                     AppDialogBox.imageUploadedDialogue(
                       context: context,
                       onConfirm: () => Get.back(),
@@ -123,7 +112,7 @@ class UploadPhotoPage extends StatelessWidget {
                       cancelText: 'Cancel',
                       borderColor: AppColors.primaryColor,
                     );
-                  },)
+                  },)*/
                 ],
               ),
             )

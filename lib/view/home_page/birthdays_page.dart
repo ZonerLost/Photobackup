@@ -30,14 +30,15 @@ class BirthdaysPage extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 20),
         child: Column(
           children: [
-            GetTextField(
+           /* GetTextField(
               prefixIcon: AppIcons.searchIcon,
               context: context,
               hintText: "Search by title",
               borderColor: AppColors.lightGreyColor,
             ),
-            Space.vertical(3),
+            Space.vertical(3),*/
 
+            Space.vertical(2),
             /// ✅ Listen to albumController images
             Expanded(
               child: Obx(() {

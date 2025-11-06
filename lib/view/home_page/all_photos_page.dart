@@ -31,7 +31,7 @@ class AllPhotosPage extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 20),
         child: Column(
           children: [
-            30.height,
+            10.height,
             Expanded(
               child: Obx(() {
                 if (imageUploadController.isLoading.value) {
@@ -43,6 +43,7 @@ class AllPhotosPage extends StatelessWidget {
                 }
 
                 return GridView.builder(
+                  padding: EdgeInsets.zero,
                   gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
                     maxCrossAxisExtent: 210,
                     crossAxisSpacing: 10,
